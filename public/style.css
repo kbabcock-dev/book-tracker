@@ -82,7 +82,15 @@ h2 { font-size: 1.25rem; }
 
 /* ---------- Layout ---------- */
 
-main { max-width: 760px; margin: 0 auto; padding: 1.25rem 1rem calc(6rem + env(safe-area-inset-bottom, 0px)); }
+#app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+main { width: 100%; max-width: 760px; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; flex: 1 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: .15rem;
+  min-height: 44px; margin: -.5rem 0 .25rem -.4rem; padding: 0 .6rem 0 .2rem;
+  color: var(--teal); font-weight: 600; text-decoration: none; border-radius: 8px;
+}
+.back-link:hover { color: var(--teal-dark); }
 
 .page-head {
   display: flex; align-items: flex-end; justify-content: space-between;
@@ -141,7 +149,7 @@ textarea { min-height: 110px; resize: vertical; }
 
 /* ---------- Auth ---------- */
 
-.auth { max-width: 380px; margin: 10vh auto 0; padding: 0 1rem; text-align: center; }
+.auth { width: 100%; max-width: 380px; margin: 10vh auto 0; padding: 0 1rem; text-align: center; }
 .auth .panel { text-align: left; }
 .auth-icon { display: block; width: 72px; height: 72px; border-radius: 22%; margin: 0 auto 1rem; }
 .auth h1 { font-size: 2.2rem; margin-bottom: .25rem; }
@@ -189,6 +197,7 @@ textarea { min-height: 110px; resize: vertical; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; min-height: 0; }
 .cover-preview { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
 .cover-preview p { margin: 0; color: var(--ink-soft); font-size: .92rem; }
+.cover-preview[hidden] { display: none; }
 
 /* ---------- Leaderboard ---------- */
 
@@ -242,7 +251,7 @@ textarea { min-height: 110px; resize: vertical; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .tabbar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+  position: sticky; bottom: 0; z-index: 6; flex: none;
   background: var(--card); border-top: 1px solid var(--line);
   padding: 6px 0 calc(8px + env(safe-area-inset-bottom, 0px));
 }

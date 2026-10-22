@@ -83,6 +83,7 @@ const ICONS = {
   leaderboard: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10"/><path d="M17 4v8a5 5 0 0 1-10 0V4"/><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M15 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/>',
   account: '<path d="M8 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>',
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  back: '<path d="M15 6l-6 6l6 6"/>',
   trash: '<path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>',
 };
 const icon = (name, size = 24) =>
@@ -394,7 +395,8 @@ async function renderBookForm(id) {
     .join('');
 
   shell(
-    `<div class="page-head"><h1>${editing ? 'Edit book' : 'Add a book'}</h1></div>
+    `<a class="back-link" href="#/">${icon('back', 22)}Back</a>
+     <div class="page-head"><h1>${editing ? 'Edit book' : 'Add a book'}</h1></div>
      ${editing ? '' : `
      <section class="panel scan-panel" aria-labelledby="scan-title">
        <h2 id="scan-title" style="margin-bottom:.75rem">Fill it in from the barcode</h2>
