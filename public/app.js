@@ -225,12 +225,12 @@ async function renderLeaderboard(sort = 'books') {
       })
       .join('');
     shell(
-      `<div class="page-head"><div><h1>Leaderboard</h1><p>Select a name to see what they’ve read.</p></div></div>
+      `<div class="page-head"><div><h1>Leaderboard</h1><p>Counts finished books only, meaning books with an end date. Select a name to see what they’ve read.</p></div></div>
        <div class="segmented" role="group" aria-label="Rank by">
          <button type="button" data-sort="books" aria-pressed="${sort === 'books'}">Most books</button>
          <button type="button" data-sort="pages" aria-pressed="${sort === 'pages'}">Most pages</button>
        </div>
-       ${leaders.length ? `<ol class="leaders">${rows}</ol>` : '<div class="empty panel"><h2>No readers yet</h2><p>Log a book to put yourself on the board.</p></div>'}`,
+       ${leaders.length ? `<ol class="leaders">${rows}</ol>` : '<div class="empty panel"><h2>No finished books yet</h2><p>Add an end date to a book to put yourself on the board.</p></div>'}`,
       'leaderboard'
     );
     root.querySelectorAll('[data-sort]').forEach((btn) =>
@@ -250,10 +250,10 @@ async function renderUser(id) {
     const { user, books } = await api(`/users/${id}`);
     shell(
       `<div class="page-head">
-         <div><h1>${esc(user.username)}’s books</h1><p>${books.length ? totalsText(books) : 'Nothing logged yet'}</p></div>
+         <div><h1>${esc(user.username)}’s books</h1><p>${books.length ? totalsText(books) : 'No finished books yet'}</p></div>
          <a class="btn secondary" href="#/leaderboard">Back to leaderboard</a>
        </div>
-       ${books.length ? `<ul class="books">${books.map((b) => bookRow(b, { editable: false })).join('')}</ul>` : '<div class="empty panel"><p>This reader hasn’t logged any books yet.</p></div>'}`,
+       ${books.length ? `<ul class="books">${books.map((b) => bookRow(b, { editable: false })).join('')}</ul>` : '<div class="empty panel"><p>This reader hasn’t finished any books yet.</p></div>'}`,
       'leaderboard'
     );
   } catch (err) {

@@ -291,7 +291,7 @@ app.get('/api/leaderboard', requireUser, async (c) => {
   const tiebreak = sort === 'books' ? 'pages' : 'books';
   const rows = await sql.query(
     `SELECT u.id, u.username, COUNT(b.id)::int AS books, COALESCE(SUM(b.pages), 0)::int AS pages
-     FROM users u JOIN books b ON b.user_id = u.id
+     FROM users u JOIN books b ON b.user_id = u.id AND b.end_date IS NOT NULL
      GROUP BY u.id, u.username
      ORDER BY ${sort} DESC, ${tiebreak} DESC, lower(u.username)
      LIMIT 100`
@@ -299,14 +299,14 @@ app.get('/api/leaderboard', requireUser, async (c) => {
   return c.json({ sort, leaders: rows });
 });
 
-// Another reader's books. Their private notes are left out.
+// Another reader's finished books (same rule as the leaderboard). Their private notes are left out.
 app.get('/api/users/:id', requireUser, async (c) => {
   const sql = c.get('sql');
   const id = Number(c.req.param('id'));
   const users = await sql`SELECT id, username FROM users WHERE id = ${id}`;
   if (!users.length) return c.json({ error: 'Reader not found.' }, 404);
   const rows = await sql.query(
-    `SELECT ${PUBLIC_BOOK_COLUMNS} FROM books WHERE user_id = $1 ${ORDER}`,
+    `SELECT ${PUBLIC_BOOK_COLUMNS} FROM books WHERE user_id = $1 AND end_date IS NOT NULL ${ORDER}`,
     [id]
   );
   return c.json({ user: users[0], books: rows });
