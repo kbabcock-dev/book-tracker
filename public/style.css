@@ -134,8 +134,10 @@ textarea { min-height: 110px; resize: vertical; }
 .message.error { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
 .message.info { background: color-mix(in srgb, var(--teal) 14%, transparent); color: var(--teal-dark); }
 
-.actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1.25rem; }
-.actions .spacer { margin-left: auto; }
+.actions { display: flex; gap: .6rem; flex-wrap: nowrap; margin-top: 1.25rem; }
+.actions .btn { flex: 1 1 0; min-width: 0; }
+.actions .btn[type="submit"] { flex: 2 1 0; }
+.actions .icon-btn { flex: 0 0 48px; padding: 0; }
 
 /* ---------- Auth ---------- */
 
@@ -155,6 +157,9 @@ textarea { min-height: 110px; resize: vertical; }
   background: var(--card); border: 1px solid var(--line); border-radius: 10px;
   padding: .8rem;
 }
+.book-link { color: inherit; text-decoration: none; }
+.book-link:hover { border-color: var(--teal); color: inherit; }
+.chev { align-self: center; font-size: 1.8rem; line-height: 1; color: var(--ink-soft); }
 .book-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; line-height: 1.25; margin: 0; }
 .book-author { color: var(--ink-soft); margin: .1rem 0 .4rem; }
 .book-meta { font-size: .88rem; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: .1rem .9rem; }

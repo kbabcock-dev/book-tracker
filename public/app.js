@@ -83,6 +83,7 @@ const ICONS = {
   leaderboard: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10"/><path d="M17 4v8a5 5 0 0 1-10 0V4"/><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M15 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/>',
   account: '<path d="M8 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>',
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  trash: '<path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>',
 };
 const icon = (name, size = 24) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
@@ -172,8 +173,7 @@ function bookRow(book, { editable }) {
     dateText(book) ? `<span>${esc(dateText(book))}</span>` : '',
     book.pages ? `<span>${fmtNum(book.pages)} pages</span>` : '',
   ].filter(Boolean).join('');
-  return `
-    <li class="book">
+  const inner = `
       ${coverHtml(book)}
       <div>
         <h2 class="book-title">${esc(book.title)}</h2>
@@ -181,8 +181,11 @@ function bookRow(book, { editable }) {
         ${meta ? `<div class="book-meta">${meta}</div>` : ''}
         ${book.notes ? `<p class="book-notes">${esc(book.notes)}</p>` : ''}
       </div>
-      ${editable ? `<a class="btn secondary small" href="#/edit/${book.id}" aria-label="Edit ${esc(book.title)}">Edit</a>` : '<span></span>'}
-    </li>`;
+      ${editable ? '<span class="chev" aria-hidden="true">›</span>' : '<span></span>'}`;
+  // On your own list the whole row opens the book for editing
+  return editable
+    ? `<li><a class="book book-link" href="#/edit/${book.id}" aria-label="Edit ${esc(book.title)} by ${esc(book.author)}">${inner}</a></li>`
+    : `<li><div class="book">${inner}</div></li>`;
 }
 
 function totalsText(books) {
@@ -436,9 +439,9 @@ async function renderBookForm(id) {
          <textarea id="notes" name="notes" maxlength="5000">${esc(book.notes || '')}</textarea>
        </div>
        <div class="actions">
-         <button class="btn" type="submit">${editing ? 'Save changes' : 'Save book'}</button>
+         <button class="btn" type="submit">Save</button>
          <a class="btn secondary" href="#/">Cancel</a>
-         ${editing ? '<button class="btn danger spacer" type="button" id="delete">Delete book</button>' : ''}
+         ${editing ? `<button class="btn danger icon-btn" type="button" id="delete" aria-label="Delete book" title="Delete book">${icon('trash', 22)}</button>` : ''}
        </div>
      </form>`,
     editing ? 'books' : 'add'
