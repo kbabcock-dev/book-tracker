@@ -283,6 +283,49 @@ app.delete('/api/books/:id', requireUser, async (c) => {
   return c.json({ ok: true });
 });
 
+// ---------- Reading stats ----------
+
+// Counts finished books (those with an end date), the same rule the leaderboard uses.
+// The browser sends its own "today" so periods follow the reader's local date, not the server's.
+app.get('/api/stats', requireUser, async (c) => {
+  const sql = c.get('sql');
+  const userId = c.get('user').id;
+  const given = c.req.query('today');
+  const today = given && DATE_RE.test(given) && !Number.isNaN(Date.parse(given)) ? given : new Date().toISOString().slice(0, 10);
+
+  const periods = await sql.query(
+    `SELECT
+       COUNT(*) FILTER (WHERE end_date > ($2::date - INTERVAL '6 months')::date AND end_date <= $2::date)::int AS six_books,
+       COALESCE(SUM(pages) FILTER (WHERE end_date > ($2::date - INTERVAL '6 months')::date AND end_date <= $2::date), 0)::int AS six_pages,
+       COUNT(*) FILTER (WHERE end_date > ($2::date - INTERVAL '12 months')::date AND end_date <= $2::date)::int AS year_books,
+       COALESCE(SUM(pages) FILTER (WHERE end_date > ($2::date - INTERVAL '12 months')::date AND end_date <= $2::date), 0)::int AS year_pages,
+       COUNT(*) FILTER (WHERE end_date >= date_trunc('year', $2::date)::date AND end_date <= $2::date)::int AS ytd_books,
+       COALESCE(SUM(pages) FILTER (WHERE end_date >= date_trunc('year', $2::date)::date AND end_date <= $2::date), 0)::int AS ytd_pages
+     FROM books WHERE user_id = $1 AND end_date IS NOT NULL`,
+    [userId, today]
+  );
+
+  const years = await sql.query(
+    `SELECT EXTRACT(YEAR FROM end_date)::int AS year, COUNT(*)::int AS books, COALESCE(SUM(pages), 0)::int AS pages
+     FROM books WHERE user_id = $1 AND end_date IS NOT NULL
+     GROUP BY 1 ORDER BY 1 DESC`,
+    [userId]
+  );
+
+  const p = periods[0];
+  return c.json({
+    today,
+    last6: { books: p.six_books, pages: p.six_pages },
+    lastYear: { books: p.year_books, pages: p.year_pages },
+    ytd: { books: p.ytd_books, pages: p.ytd_pages },
+    allTime: {
+      books: years.reduce((n, y) => n + y.books, 0),
+      pages: years.reduce((n, y) => n + y.pages, 0),
+      byYear: years,
+    },
+  });
+});
+
 // ---------- Leaderboard & other readers ----------
 
 app.get('/api/leaderboard', requireUser, async (c) => {

@@ -83,9 +83,10 @@ function shell(inner, active) {
   root.innerHTML = `
     <header class="topbar">
       <div class="topbar-inner">
-        <a class="brand" href="#/">Book Tracker</a>
+        <a class="brand" href="#/"><img class="brand-icon" src="/icon-mark.svg" alt="" width="28" height="28">Book Tracker</a>
         <nav class="nav" aria-label="Main">
           ${link('#/', 'My books', 'books')}
+          ${link('#/stats', 'Stats', 'stats')}
           ${link('#/leaderboard', 'Leaderboard', 'leaderboard')}
           ${link('#/add', 'Add a book', 'add')}
         </nav>
@@ -115,6 +116,7 @@ function renderAuth(mode = 'login') {
   const signup = mode === 'signup';
   root.innerHTML = `
     <section class="auth">
+      <img class="auth-icon" src="/icon.svg" alt="" width="72" height="72">
       <h1>Book Tracker</h1>
       <p class="tagline">${signup ? 'Create an account to start your reading log.' : 'Log in to see your reading log.'}</p>
       <form class="panel" id="auth-form">
@@ -199,6 +201,55 @@ async function renderMyBooks() {
          <a class="btn" href="#/add">Add a book</a>
        </div>${body}`,
       'books'
+    );
+  } catch (err) {
+    showError(err);
+  }
+}
+
+// ---------- Stats ----------
+
+function localToday() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+async function renderStats() {
+  shell('<p class="loading">Loading your stats…</p>', 'stats');
+  try {
+    const stats = await api(`/stats?today=${localToday()}`);
+    const card = (label, s) => `
+      <div class="stat">
+        <div class="stat-label">${label}</div>
+        <div class="stat-num">${fmtNum(s.books)}</div>
+        <div class="stat-sub">${s.books === 1 ? 'book' : 'books'}${s.pages ? ` · ${fmtNum(s.pages)} pages` : ''}</div>
+      </div>`;
+    const years = stats.allTime.byYear;
+    const max = Math.max(1, ...years.map((y) => y.books));
+    const yearRows = years
+      .map(
+        (y) => `
+        <li class="year-row">
+          <span class="year-label">${y.year}</span>
+          <span class="year-bar" aria-hidden="true"><span style="width:${Math.round((y.books / max) * 100)}%"></span></span>
+          <span class="year-count"><strong>${fmtNum(y.books)}</strong> ${y.books === 1 ? 'book' : 'books'}${y.pages ? ` · ${fmtNum(y.pages)} pages` : ''}</span>
+        </li>`
+      )
+      .join('');
+    shell(
+      `<div class="page-head"><div><h1>Stats</h1><p>Counts finished books only, meaning books with an end date.</p></div></div>
+       <div class="stat-grid">
+         ${card('Last 6 months', stats.last6)}
+         ${card('Last year', stats.lastYear)}
+         ${card('Year to date', stats.ytd)}
+         ${card('All time', stats.allTime)}
+       </div>
+       <h2 class="section-title">All time, by year</h2>
+       ${years.length
+         ? `<ol class="years">${yearRows}</ol>`
+         : '<div class="empty panel"><h2>No finished books yet</h2><p>Add an end date to a book and it will show up here.</p></div>'}`,
+      'stats'
     );
   } catch (err) {
     showError(err);
@@ -498,6 +549,7 @@ async function route() {
   const [, page, arg] = (location.hash || '#/').split('/');
   window.scrollTo(0, 0);
   switch (page) {
+    case 'stats': return renderStats();
     case 'leaderboard': return renderLeaderboard();
     case 'user': return renderUser(arg);
     case 'add': return renderBookForm();

@@ -74,7 +74,9 @@ h2 { font-size: 1.25rem; }
   text-decoration: none;
   margin-right: auto;
 }
+.brand { display: inline-flex; align-items: center; gap: .55rem; }
 .brand:hover { color: #fff; }
+.brand-icon { width: 28px; height: 28px; border-radius: 22%; display: block; }
 .nav { display: flex; gap: .25rem; }
 .nav a {
   color: #fff;
@@ -150,7 +152,9 @@ textarea { min-height: 110px; resize: vertical; }
 
 /* ---------- Auth ---------- */
 
-.auth { max-width: 380px; margin: 12vh auto 0; padding: 0 1rem; }
+.auth { max-width: 380px; margin: 10vh auto 0; padding: 0 1rem; text-align: center; }
+.auth .panel { text-align: left; }
+.auth-icon { display: block; width: 72px; height: 72px; border-radius: 22%; margin: 0 auto 1rem; }
 .auth h1 { font-size: 2.2rem; margin-bottom: .25rem; }
 .auth .tagline { color: var(--ink-soft); margin: 0 0 1.5rem; }
 .auth .switch { margin-top: 1rem; text-align: center; font-size: .95rem; }
@@ -215,6 +219,25 @@ textarea { min-height: 110px; resize: vertical; }
 .leader-stats { text-align: right; line-height: 1.2; }
 .leader-stats strong { font-family: var(--serif); font-size: 1.35rem; display: block; }
 .leader-stats span { font-size: .85rem; color: var(--ink-soft); }
+
+/* ---------- Stats ---------- */
+
+.stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-bottom: 2rem; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; }
+.stat-label { font-size: .9rem; color: var(--ink-soft); }
+.stat-num { font-family: var(--serif); font-size: 2.4rem; font-weight: 700; line-height: 1.1; margin: .15rem 0; }
+.stat-sub { font-size: .88rem; color: var(--ink-soft); }
+.section-title { margin-bottom: .75rem; }
+.years { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.year-row {
+  display: grid; grid-template-columns: 3.2rem 1fr; gap: .15rem .75rem; align-items: center;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: .7rem .9rem;
+}
+.year-label { font-family: var(--serif); font-weight: 700; font-size: 1.1rem; grid-row: span 2; }
+.year-bar { display: block; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.year-bar > span { display: block; height: 100%; background: var(--teal); border-radius: 4px; }
+.year-count { font-size: .9rem; color: var(--ink-soft); }
+.year-count strong { color: var(--ink); }
 
 .loading { color: var(--ink-soft); padding: 2rem 0; text-align: center; }
 
