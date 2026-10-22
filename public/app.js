@@ -77,28 +77,37 @@ document.addEventListener(
 
 // ---------- Layout ----------
 
+const ICONS = {
+  books: '<path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13"/><path d="M12 6v13"/><path d="M21 6v13"/>',
+  stats: '<path d="M5 20v-6"/><path d="M12 20V4"/><path d="M19 20V10"/>',
+  leaderboard: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10"/><path d="M17 4v8a5 5 0 0 1-10 0V4"/><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M15 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/>',
+  account: '<path d="M8 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>',
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+};
+const icon = (name, size = 24) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+
 function shell(inner, active) {
-  const link = (hash, label, key) =>
-    `<a href="${hash}"${active === key ? ' aria-current="page"' : ''}>${label}</a>`;
+  const tab = (hash, label, key) =>
+    `<a class="tab" href="${hash}"${active === key ? ' aria-current="page"' : ''}>${icon(key)}<span>${label}</span></a>`;
   root.innerHTML = `
     <header class="topbar">
       <div class="topbar-inner">
         <a class="brand" href="#/"><img class="brand-icon" src="/icon-mark.svg" alt="" width="28" height="28">Book Tracker</a>
-        <nav class="nav" aria-label="Main">
-          ${link('#/', 'My books', 'books')}
-          ${link('#/stats', 'Stats', 'stats')}
-          ${link('#/leaderboard', 'Leaderboard', 'leaderboard')}
-          ${link('#/add', 'Add a book', 'add')}
-        </nav>
-        <span class="whoami">${esc(me.username)} · <button class="linkish" id="logout">Log out</button></span>
       </div>
     </header>
-    <main>${inner}</main>`;
-  document.getElementById('logout').addEventListener('click', async () => {
-    await api('/logout', { method: 'POST' }).catch(() => {});
-    me = null;
-    go('#/');
-  });
+    <main>${inner}</main>
+    <nav class="tabbar" aria-label="Main">
+      <div class="tabbar-inner">
+        ${tab('#/', 'My books', 'books')}
+        ${tab('#/stats', 'Stats', 'stats')}
+        <a class="tab add" href="#/add"${active === 'add' ? ' aria-current="page"' : ''}>
+          <span class="fab">${icon('plus', 26)}</span><span class="sr-only">Add a book</span>
+        </a>
+        ${tab('#/leaderboard', 'Leaderboard', 'leaderboard')}
+        ${tab('#/account', 'Account', 'account')}
+      </div>
+    </nav>`;
 }
 
 function showError(err) {
@@ -542,6 +551,24 @@ async function renderBookForm(id) {
   }
 }
 
+// ---------- Account ----------
+
+function renderAccount() {
+  shell(
+    `<div class="page-head"><div><h1>Account</h1></div></div>
+     <div class="panel">
+       <p style="margin:0 0 1rem">Signed in as <strong>${esc(me.username)}</strong></p>
+       <button class="btn secondary" id="logout" type="button">Log out</button>
+     </div>`,
+    'account'
+  );
+  document.getElementById('logout').addEventListener('click', async () => {
+    await api('/logout', { method: 'POST' }).catch(() => {});
+    me = null;
+    go('#/');
+  });
+}
+
 // ---------- Router ----------
 
 async function route() {
@@ -550,6 +577,7 @@ async function route() {
   window.scrollTo(0, 0);
   switch (page) {
     case 'stats': return renderStats();
+    case 'account': return renderAccount();
     case 'leaderboard': return renderLeaderboard();
     case 'user': return renderUser(arg);
     case 'add': return renderBookForm();
