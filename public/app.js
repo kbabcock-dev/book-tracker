@@ -174,9 +174,16 @@ function bookRow(book, { editable }) {
     dateText(book) ? `<span>${esc(dateText(book))}</span>` : '',
     book.pages ? `<span>${fmtNum(book.pages)} pages</span>` : '',
   ].filter(Boolean).join('');
+  // A book counts as completed once it has an end date, the same rule the leaderboard and stats use
+  const status = !editable
+    ? ''
+    : book.end_date
+      ? '<span class="pill pill-done">Completed</span>'
+      : '<span class="pill pill-reading">Reading</span>';
   const inner = `
       ${coverHtml(book)}
       <div>
+        ${status}
         <h2 class="book-title">${esc(book.title)}</h2>
         <p class="book-author">${esc(book.author)}</p>
         ${meta ? `<div class="book-meta">${meta}</div>` : ''}
