@@ -283,6 +283,23 @@ app.delete('/api/books/:id', requireUser, async (c) => {
   return c.json({ ok: true });
 });
 
+// ---------- Top 10 ----------
+
+// Rated, finished books: most stars first, then the shortest time from start to finish.
+// Books with no start date can't be timed, so they come last within their star rating.
+app.get('/api/top', requireUser, async (c) => {
+  const sql = c.get('sql');
+  const rows = await sql.query(
+    `SELECT ${BOOK_COLUMNS}, (end_date - start_date) AS days
+     FROM books
+     WHERE user_id = $1 AND rating IS NOT NULL AND end_date IS NOT NULL
+     ORDER BY rating DESC, (end_date - start_date) ASC NULLS LAST, end_date DESC, id DESC
+     LIMIT 10`,
+    [c.get('user').id]
+  );
+  return c.json({ books: rows });
+});
+
 // ---------- Reading stats ----------
 
 // Counts finished books (those with an end date), the same rule the leaderboard uses.

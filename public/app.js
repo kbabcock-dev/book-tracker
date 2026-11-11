@@ -258,7 +258,10 @@ async function renderStats() {
       )
       .join('');
     shell(
-      `<div class="page-head"><div><h1>Stats</h1><p>Counts finished books only, meaning books with an end date.</p></div></div>
+      `<div class="page-head">
+         <div><h1>Stats</h1><p>Counts finished books only, meaning books with an end date.</p></div>
+         <a class="btn secondary" href="#/top">Top 10 books</a>
+       </div>
        <div class="stat-grid">
          ${card('Last 6 months', stats.last6)}
          ${card('Last year', stats.lastYear)}
@@ -269,6 +272,49 @@ async function renderStats() {
        ${years.length
          ? `<ol class="years">${yearRows}</ol>`
          : '<div class="empty panel"><h2>No finished books yet</h2><p>Add an end date to a book and it will show up here.</p></div>'}`,
+      'stats'
+    );
+  } catch (err) {
+    showError(err);
+  }
+}
+
+// ---------- Top 10 ----------
+
+function daysText(days) {
+  if (days === null || days === undefined) return '';
+  if (days === 0) return 'Finished the same day';
+  return `Finished in ${fmtNum(days)} ${days === 1 ? 'day' : 'days'}`;
+}
+
+async function renderTop() {
+  shell('<p class="loading">Loading your top 10…</p>', 'stats');
+  try {
+    const { books } = await api('/top');
+    const rows = books
+      .map(
+        (b, i) => `
+        <li>
+          <a class="book book-link top-row" href="#/edit/${b.id}" aria-label="${esc(b.title)} by ${esc(b.author)}, number ${i + 1}">
+            <span class="rank">${i + 1}</span>
+            ${coverHtml(b)}
+            <div>
+              <h2 class="book-title">${esc(b.title)}</h2>
+              <p class="book-author">${esc(b.author)}</p>
+              <div class="book-meta">${starsHtml(b.rating)}${daysText(b.days) ? `<span>${daysText(b.days)}</span>` : ''}</div>
+            </div>
+            <span class="chev" aria-hidden="true">›</span>
+          </a>
+        </li>`
+      )
+      .join('');
+    shell(
+      `<a class="back-link" href="#/stats">${icon('back', 22)}Back</a>
+       <div class="page-head"><div><h1>Top 10 books</h1>
+         <p>Most stars first. Ties go to the book you finished fastest.</p></div></div>
+       ${books.length
+         ? `<ol class="books top-list">${rows}</ol>`
+         : '<div class="empty panel"><h2>Nothing to rank yet</h2><p>Finish a book and give it a star rating to see it here.</p></div>'}`,
       'stats'
     );
   } catch (err) {
@@ -589,6 +635,7 @@ async function route() {
   window.scrollTo(0, 0);
   switch (page) {
     case 'stats': return renderStats();
+    case 'top': return renderTop();
     case 'account': return renderAccount();
     case 'leaderboard': return renderLeaderboard();
     case 'user': return renderUser(arg);

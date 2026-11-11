@@ -242,6 +242,10 @@ textarea { min-height: 110px; resize: vertical; }
 .stat-label { font-size: .9rem; color: var(--ink-soft); }
 .stat-num { font-family: var(--serif); font-size: 2.4rem; font-weight: 700; line-height: 1.1; margin: .15rem 0; }
 .stat-sub { font-size: .88rem; color: var(--ink-soft); }
+.top-row { grid-template-columns: 1.8rem 64px 1fr auto; align-items: start; }
+.top-row .rank { align-self: center; }
+.top-list li:first-child .rank { color: var(--gold); }
+
 .section-title { margin-bottom: .75rem; }
 .years { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
 .year-row {
